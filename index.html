@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emberlight | Power Rankings</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #141414;
+            --border: #2a2a2a;
+            --accent: #ff4d00;
+            --text-main: #e0e0e0;
+            --text-dim: #888;
+            
+            /* Tier Colors */
+            --ht1: #ff003c; /* High Tier 1 - Red Glow */
+            --lt1: #ff4d00; /* Low Tier 1 - Orange */
+            --ht2: #ff9900; /* High Tier 2 - Amber */
+            --lt2: #ffcc00; /* Low Tier 2 - Yellow */
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .container { width: 100%; max-width: 900px; }
+
+        .header { text-align: center; margin-bottom: 50px; }
+        .header h1 { 
+            font-size: 3rem; 
+            margin: 0; 
+            letter-spacing: -1px;
+            background: linear-gradient(to bottom, #fff, #ff4d00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+        .header p { color: var(--text-dim); margin-top: 10px; font-size: 1.1rem; }
+
+        .search-container { margin-bottom: 25px; width: 100%; }
+        #searchInput {
+            width: 100%;
+            padding: 15px 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.3s;
+        }
+        #searchInput:focus { border-color: var(--accent); }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        th {
+            text-align: left;
+            padding: 10px 20px;
+            color: var(--text-dim);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        tr { transition: transform 0.2s; }
+        
+        td {
+            background: var(--surface);
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td:first-child { border-left: 1px solid var(--border); border-radius: 8px 0 0 8px; font-weight: bold; width: 60px; }
+        td:last-child { border-right: 1px solid var(--border); border-radius: 0 8px 8px 0; text-align: right; }
+
+        .player-name { font-weight: 600; font-size: 1.1rem; color: #fff; }
+
+        /* Tier Tags */
+        .tier {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .ht1 { background: rgba(255, 0, 60, 0.15); color: var(--ht1); border: 1px solid var(--ht1); box-shadow: 0 0 10px rgba(255, 0, 60, 0.2); }
+        .lt1 { background: rgba(255, 77, 0, 0.15); color: var(--lt1); border: 1px solid var(--lt1); }
+        .ht2 { background: rgba(255, 153, 0, 0.15); color: var(--ht2); border: 1px solid var(--ht2); }
+        .lt2 { background: rgba(255, 204, 0, 0.15); color: var(--lt2); border: 1px solid var(--lt2); }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 2rem; }
+            td { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Emberlight</h1>
+            <p>Official Power Rankings Leaderboard</p>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search for a player..." onkeyup="searchPlayers()">
+        </div>
+
+        <table id="rankTable">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Player</th>
+                    <th style="text-align: right;">Power Tier</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- JavaScript will inject players here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const players = [
+            { name: "Magma", tier: "HT1", css: "ht1" },
+            { name: "PixieFN", tier: "HT1", css: "ht1" },
+            { name: "beyondcheese", tier: "LT1", css: "lt1" },
+            { name: "Mesp1xr", tier: "LT1", css: "lt1" },
+            { name: "DragonFlame248", tier: "HT2", css: "ht2" },
+            { name: "Shaunyelite", tier: "HT2", css: "ht2" },
+            { name: "Cow", tier: "HT2", css: "ht2" },
+            { name: "FlameFrags", tier: "LT2", css: "lt2" },
+            { name: "MONARCHOFSHADOWS", tier: "LT2", css: "lt2" },
+            { name: "Dexion", tier: "LT2", css: "lt2" },
+            { name: "Silence", tier: "LT2", css: "lt2" },
+            { name: "Fanumtaxer6777", tier: "LT2", css: "lt2" }
+        ];
+
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = data.map((player, index) => `
+                <tr>
+                    <td>#${index + 1}</td>
+                    <td class="player-name">${player.name}</td>
+                    <td style="text-align: right;">
+                        <span class="tier ${player.css}">${player.tier}</span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function searchPlayers() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = players.filter(p => p.name.toLowerCase().includes(query));
+            renderTable(filtered);
+        }
+
+        // Initial Load
+        renderTable(players);
+    </script>
+</body>
+</html>
